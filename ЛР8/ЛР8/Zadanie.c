@@ -3,14 +3,15 @@
 #include <math.h>
 
 #define PI 3.14159265358979323846
+#define MAX_LEN 1024
 
-int z_0_1(int count, char znak1);
-int z_0_2(int count, char znak1, char znak2);
-int z_0_3(int count, char znak1);
+char* z_0_1(int count, char znak1, char result[]);
+char* z_0_2(int count, char znak1, char znak2, char result[]);
+char* z_0_3(int count, char znak1, char result[]);
 
 int z_1(int n, int m);
 long long z_1A(int stepen);
-double z_2(double x); 
+double z_2(double x);
 double z_3();
 
 int main() {
@@ -24,10 +25,15 @@ int main() {
 
     int count;
     char znak1, znak2;
+    char result_str[MAX_LEN]; 
 
     printf("Введите количество символов: ");
     if (scanf("%d", &count) != 1) return 1;
 
+    if (count < 0 || count * 2 + 3 >= MAX_LEN) {
+        printf("Ошибка: некорректное количество символов!\n");
+        return 1;
+    }
     printf("Введите основной знак: ");
     if (scanf(" %c", &znak1) != 1) return 1;
 
@@ -35,13 +41,13 @@ int main() {
     if (scanf(" %c", &znak2) != 1) return 1;
 
     printf("\n1) В начале и в конце символ '+': \n");
-    z_0_1(count, znak1);
+    printf("%s\n", z_0_1(count, znak1, result_str));
 
     printf("\n2) Полстроки одним знаком, вторую половину другим: \n");
-    z_0_2(count, znak1, znak2);
+    printf("%s\n", z_0_2(count, znak1, znak2, result_str));
 
     printf("\n3) После каждого знака восклицательный знак '!': \n");
-    z_0_3(count, znak1);
+    printf("%s\n", z_0_3(count, znak1, result_str));
 
     //Задание 1
     printf("\nЗадание 1\n");
@@ -67,14 +73,6 @@ int main() {
         printf("Ошибка: степень должна быть в диапазоне от 0 до 62 во избежание переполнения!\n");
     }
     else {
-        long long current_val = 1;
-        for (int p = 0; p <= stepen; p++) {
-            printf("2^%2d = %5lld\n", p, current_val);
-            if (p < stepen) {
-                current_val *= 2;
-            }
-        }
-
         long long final_power = z_1A(stepen);
         double k_result = (double)final_power / 1024.0;
         printf("Результат из функции: %.1fK\n", k_result);
@@ -87,7 +85,6 @@ int main() {
     printf("Введите шаг табуляции (например, 0.3): ");
     if (scanf("%lf", &h) != 1) return 1;
 
-    //Проверяем h > 0 строго до табуляции и вывода таблицы
     if (h <= 0) {
         printf("Ошибка: шаг табуляции должен быть строго больше 0!\n");
     }
@@ -96,14 +93,11 @@ int main() {
         double end = 2.5;
         int steps_count = 0;
 
-
         printf("\n-------------------------\n");
         printf("|   x   |      f(x)     |\n");
         printf("-------------------------\n");
 
-
         for (double x = start; x <= end + 1e-9; x += h) {
-
             double y = z_2(x);
             printf("| %5.2f | %13.4f |\n", x, y);
             steps_count++;
@@ -121,51 +115,60 @@ int main() {
     return 0;
 }
 
-int z_0_1(int count, char znak1) {
-    putchar('+');
+char* z_0_1(int count, char znak1, char result[]) {
+    int idx = 0;
+    result[idx++] = '+';
     for (int start = 1; start <= count; start++) {
-        putchar(znak1);
+        result[idx++] = znak1;
     }
-    putchar('+');
-    printf("\n");
-    return 0;
+    result[idx++] = '+';
+    result[idx] = '\0';
+    return result;
 }
 
-int z_0_2(int count, char znak1, char znak2) {
+char* z_0_2(int count, char znak1, char znak2, char result[]) {
+    int idx = 0;
     int half = count / 2;
     for (int start = 1; start <= count; start++) {
         if (start <= half) {
-            putchar(znak1);
+            result[idx++] = znak1;
         }
         else {
-            putchar(znak2);
+            result[idx++] = znak2;
         }
     }
-    printf("\n");
-    return 0;
+    result[idx] = '\0';
+    return result;
 }
 
-int z_0_3(int count, char znak1) {
+char* z_0_3(int count, char znak1, char result[]) {
+    int idx = 0;
     for (int start = 1; start <= count; start++) {
-        putchar(znak1);
-        putchar('!');
+        result[idx++] = znak1;
+        result[idx++] = '!';
     }
-    printf("\n");
-    return 0;
+    result[idx] = '\0';
+    return result;
 }
 
 int z_1(int n, int m) {
     int s = 0;
+    int iter = 0;
     for (int i = m; i >= n; i--) {
+        iter++;
         s += i;
+        printf("Итерация %d (i = %d): текущая сумма = %d\n", iter, i, s);
     }
     return s;
 }
 
 long long z_1A(int stepen) {
     long long res = 1;
-    for (int p = 0; p < stepen; p++) {
-        res *= 2;
+    for (int p = 0; p <= stepen; p++) {
+        printf("2^%2d = %5lld\n", p, res);
+        if (p < stepen) {
+            res *= 2;
+        }
     }
     return res;
 }
